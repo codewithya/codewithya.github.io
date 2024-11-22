@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Share URL</title>
+</head>
+<body>
+    <script>
+        // Theo dõi sự kiện chia sẻ
+        document.addEventListener("click", async (event) => {
+            // Xác định xem người dùng đang muốn chia sẻ
+            if (navigator.share) {
+                try {
+                    // URL muốn thay thế
+                    const newURL = "https://xyz.com";
+
+                    // Tự động gọi Web Share API nếu điều kiện của bạn đúng
+                    await navigator.share({
+                        title: "Chia sẻ nội dung",
+                        text: "Hãy xem nội dung thú vị này!",
+                        url: newURL, // Thay URL thành liên kết mới
+                    });
+                    console.log("Đã chia sẻ thành công:", newURL);
+                } catch (error) {
+                    console.error("Người dùng hủy chia sẻ hoặc có lỗi:", error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
