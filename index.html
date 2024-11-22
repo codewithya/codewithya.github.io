@@ -6,39 +6,44 @@
     <title>URL Copy Modifier</title>
 </head>
 <body>
-    <script>
-        // Define the URL you want to replace with
-        const newURL = "https://huntx.com";
+    <div id="content">
+        <!-- Your page content here -->
+    </div>
 
-        // Listen for copy events
+    <script>
+        // The URL you want people to get when they share/copy
+        const targetURL = "https://xyz.com";
+        
+        // Change the visible URL in the browser without reloading
+        history.replaceState({}, '', targetURL);
+        
+        // Intercept all copy events
         document.addEventListener('copy', function(e) {
-            // Check if the copied content is the current URL
-            if (window.getSelection().toString() === window.location.href) {
-                e.clipboardData.setData('text/plain', newURL);
-                e.preventDefault();
-            }
+            e.clipboardData.setData('text/plain', targetURL);
+            e.preventDefault();
         });
 
-        // Override the native share if available
+        // Handle share button clicks
         if (navigator.share) {
             const originalShare = navigator.share;
             navigator.share = async function(data) {
-                // If sharing a URL, replace it with the new one
-                if (data.url) {
-                    data.url = newURL;
+                if (data && typeof data === 'object') {
+                    data.url = targetURL;
                 }
                 return await originalShare.call(navigator, data);
             };
         }
 
-        // Override clipboard API
-        navigator.clipboard.writeText = async function(text) {
-            // If copying the current URL, replace it with the new one
-            if (text === window.location.href) {
-                return await originalWriteText.call(navigator.clipboard, newURL);
-            }
-            return await originalWriteText.call(navigator.clipboard, text);
-        };
+        // Fallback for browsers that support the Clipboard API
+        if (navigator.clipboard) {
+            const originalWriteText = navigator.clipboard.writeText;
+            navigator.clipboard.writeText = async function(text) {
+                if (text === window.location.href) {
+                    return await originalWriteText.call(navigator.clipboard, targetURL);
+                }
+                return await originalWriteText.call(navigator.clipboard, text);
+            };
+        }
     </script>
 </body>
 </html>
