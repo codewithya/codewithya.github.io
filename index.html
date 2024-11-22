@@ -6,25 +6,38 @@
     <title>Custom Share URL</title>
 </head>
 <body>
+    <button id="shareButton">Share</button>
+
     <script>
-        // Theo dõi sự kiện chia sẻ
-        document.addEventListener("click", async (event) => {
-            // Xác định xem người dùng đang muốn chia sẻ
+        // Define base URL and target URL
+        const baseURL = "codewithya.github.io";
+        const targetURL = "huntx.github.io";
+
+        document.getElementById('shareButton').addEventListener("click", async () => {
             if (navigator.share) {
                 try {
-                    // URL muốn thay thế
-                    const newURL = "https://xyz.com";
-
-                    // Tự động gọi Web Share API nếu điều kiện của bạn đúng
-                    await navigator.share({
-                        title: "Chia sẻ nội dung",
-                        text: "Hãy xem nội dung thú vị này!",
-                        url: newURL, // Thay URL thành liên kết mới
-                    });
-                    console.log("Đã chia sẻ thành công:", newURL);
+                    // Check if current URL contains the base URL
+                    if (window.location.href.includes(baseURL)) {
+                        await navigator.share({
+                            title: "Shared Content",
+                            text: "Check out this interesting content!",
+                            url: targetURL // Replace with your target URL
+                        });
+                        console.log("Successfully shared with new URL:", targetURL);
+                    } else {
+                        // Share original URL if base URL doesn't match
+                        await navigator.share({
+                            title: "Shared Content",
+                            text: "Check out this interesting content!",
+                            url: window.location.href
+                        });
+                        console.log("Shared original URL:", window.location.href);
+                    }
                 } catch (error) {
-                    console.error("Người dùng hủy chia sẻ hoặc có lỗi:", error);
+                    console.error("Share failed:", error);
                 }
+            } else {
+                alert("Web Share API is not supported in your browser");
             }
         });
     </script>
