@@ -3,43 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Custom Share URL</title>
+    <title>URL Copy Modifier</title>
 </head>
 <body>
-    <button id="shareButton">Share</button>
-
     <script>
-        // Define base URL and target URL
-        const baseURL = "codewithya.github.io";
-        const targetURL = "huntx.github.io";
+        // Define the URL you want to replace with
+        const newURL = "https://huntx.com";
 
-        document.getElementById('shareButton').addEventListener("click", async () => {
-            if (navigator.share) {
-                try {
-                    // Check if current URL contains the base URL
-                    if (window.location.href.includes(baseURL)) {
-                        await navigator.share({
-                            title: "Shared Content",
-                            text: "Check out this interesting content!",
-                            url: targetURL // Replace with your target URL
-                        });
-                        console.log("Successfully shared with new URL:", targetURL);
-                    } else {
-                        // Share original URL if base URL doesn't match
-                        await navigator.share({
-                            title: "Shared Content",
-                            text: "Check out this interesting content!",
-                            url: window.location.href
-                        });
-                        console.log("Shared original URL:", window.location.href);
-                    }
-                } catch (error) {
-                    console.error("Share failed:", error);
-                }
-            } else {
-                alert("Web Share API is not supported in your browser");
+        // Listen for copy events
+        document.addEventListener('copy', function(e) {
+            // Check if the copied content is the current URL
+            if (window.getSelection().toString() === window.location.href) {
+                e.clipboardData.setData('text/plain', newURL);
+                e.preventDefault();
             }
         });
+
+        // Override the native share if available
+        if (navigator.share) {
+            const originalShare = navigator.share;
+            navigator.share = async function(data) {
+                // If sharing a URL, replace it with the new one
+                if (data.url) {
+                    data.url = newURL;
+                }
+                return await originalShare.call(navigator, data);
+            };
+        }
+
+        // Override clipboard API
+        navigator.clipboard.writeText = async function(text) {
+            // If copying the current URL, replace it with the new one
+            if (text === window.location.href) {
+                return await originalWriteText.call(navigator.clipboard, newURL);
+            }
+            return await originalWriteText.call(navigator.clipboard, text);
+        };
     </script>
 </body>
 </html>
